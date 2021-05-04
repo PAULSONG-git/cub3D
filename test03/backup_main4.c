@@ -50,25 +50,14 @@ typedef struct s_param{
 	int				size_l;
 	int				bpp;
 	int				endian;
-	double			zbuf[SX];
+	int				buf[SY][SX];
 	int				**texture;
-	int				*texture2;
 	int				img_width;
 	int				img_height;
 	double			wx;
 	double			wy;
-	int				tx;
-	int				ty;
-	int				**visible;
 
 	}				t_param;
-
-typedef struct {
-    int tex;     /* texture bitmap no. */
-    int x, y;    /* position in the map */
-    double dist; /* distance from the player */
-    double th;   /* angle */
-} sprite_t;
 
 static const double ANGLE_PER_PIXEL = FOV_H / (SX-1.);
 static const double FOVH_2 = FOV_H / 2.0;
@@ -77,7 +66,6 @@ static const double FOVH_2 = FOV_H / 2.0;
 //enum { KEY_OTHER, KEY_W, KEY_A, KEY_S, KEY_D, KEY_LEFT, KEY_RIGHT, KEY_ESC };
 
 enum { VERT, HORIZ };
-enum { floor2, cell_wall, sprite};
 
 typedef enum { false=0, true=1 } bool;
 typedef enum { DIR_N=0, DIR_E, DIR_W, DIR_S } dir_t;
@@ -120,7 +108,7 @@ l2dist( double x0, double y0, double x1, double y1 )
 }
 
 bool
-get_wall_intersection( double ray, t_param *r, dir_t* wdir, int **visible)
+get_wall_intersection( double ray, t_param *r, dir_t* wdir)
 {
     int xstep = sgn( cos(ray) );  /* +1 (right), 0 (no change), -1 (left) */
     int ystep = sgn( sin(ray) );  /* +1 (up),    0 (no change), -1 (down) */
@@ -159,7 +147,7 @@ get_wall_intersection( double ray, t_param *r, dir_t* wdir, int **visible)
         int cell = map_get_cell(mapx, mapy);
         if( cell < 0 ) break;   /* out of map */
 
-        if( cell == cell_wall ) {   /* hit wall? */
+        if( cell == 1 ) {   /* hit wall? */
             if( hit_side == VERT ) {
                 *wdir = (xstep > 0) ? DIR_W : DIR_E;
                 r->wx = nx;
@@ -174,8 +162,6 @@ get_wall_intersection( double ray, t_param *r, dir_t* wdir, int **visible)
             break;
         }
 
-		r->visible[mapx][mapy] = 1;  /* 이 행을 추가 ! */
-
         if( hit_side == VERT ) nx += xstep;
         else ny += ystep;
     }
@@ -185,19 +171,11 @@ get_wall_intersection( double ray, t_param *r, dir_t* wdir, int **visible)
 }
 
 double
-get_luminosity(t_param *param, double dist)
-{
-    static double D = -1;
-    if( D < 0 ) D = (param->wx + param->wy)/2.0;
-    return (dist > D) ? 0 : (1. - dist/D);
-}
-
-double
-cast_single_ray( int x, t_param* pp, dir_t* wdir, int *vis)
+cast_single_ray( int x, t_param* pp, dir_t* wdir)
 {
     double ray = (pp->th + FOVH_2) - (x * ANGLE_PER_PIXEL);
 
-    if( get_wall_intersection(ray, pp, wdir, &vis) == false )
+    if( get_wall_intersection(ray, pp, wdir) == false )
         return INFINITY; /* no intersection - maybe bad map? */
 
     double wdist = l2dist(pp->px, pp->py, pp->wx, pp->wy);
@@ -222,23 +200,13 @@ draw_wall( t_param *param, double wdist, int x, int color)
     int y0 = (int)((SY - wh)/2.0);
     int y1 = y0 + wh - 1;
 
-int xx;
-xx = -1;
-while (++xx < SY / 2)
-param->data[xx * SX + x] = 0x00bbbbbb;
-while (++xx < SY)
-	param->data[xx * SX + x] = 0x00FF0000;
-
     /* needs clipping */
     int ystart = max(0, y0);
     int yend = min(SY-1, y1);
 
 	count_h = ystart -1;
 	while (++count_h < yend)
-	{
-		param->ty = ((count_h - ystart) * 64 / (yend-ystart));
-		param->data[count_h * SX + x] = param->texture[color][64 * (param->ty) + (param->tx)];
-	}
+		param->data[count_h * SX + x] = color;
 }
 
 void
@@ -263,7 +231,7 @@ get_move_offset( double th, int key, double amt, double* pdx, double* pdy )
             *pdx = amt * cos(th + (key==KEY_A ? 1 : -1) * M_PI_2);
             *pdy = amt * sin(th + (key==KEY_A ? 1 : -1) * M_PI_2);
             break;
-		default: /* invalid */
+        default: /* invalid */
             return -1;
     }
     return 0;
@@ -284,83 +252,13 @@ player_move( t_param* pp, int key, double amt )
 
     if( map_get_cell((int)nx, (int)ny) != 0 ) {
         printf("** bump !\n");
+		printf("%d", (int)nx);
+		printf("%d", (int)ny);
         return -1;
     }
     pp->px = nx;
     pp->py = ny;
     return 0;
-}
-
-static int
-cmp_sprites( const void* a, const void* b )
-{
-    return (((const sprite_t*)a)->dist > ((const sprite_t*)b)->dist) ? -1 : 1;
-}
-
-static sprite_t*
-get_visible_sprites(t_param *param,  int* pcnt )
-{
-    int n = 0;
-    sprite_t* sp = NULL; /* dynamic array */
-
-    /* build list of visible sprites */
-    for( int x=0; x<MAPX; x++ ) {
-        for( int y=0; y<MAPY; y++ ) {
-            if( param->visible[x][y] == 0 || map_get_cell(x,y) <= cell_wall )
-                continue; // pass 0 or 1 (blank or wall)
-
-            if( n == 0 ) sp = (sprite_t*) malloc(sizeof(sprite_t));
-            else sp = (sprite_t*) realloc(sp, sizeof(sprite_t)*(n+1));
-
-            sp[n].tex = (map_get_cell(x,y) - cell_wall) + 5;
-            sp[n].x = x;
-            sp[n].y = y;
-            sp[n].th = atan2((y+0.5)-(param->py), (x+0.5)-(param->px));
-            if( sp[n].th < 0 ) sp[n].th += _2PI;
-            sp[n].dist = l2dist(param->px, param->py, x+0.5, y+0.5) * cos(param->th - sp[n].th);
-            n++;
-        }
-    }
-    *pcnt = n;
-    return sp;
-}
-
-static const double PIXEL_PER_ANGLE = (SX-1.) / FOV_H;
-
-static void
-draw_sprites( t_param *param )
-{
-    int nsp = 0;
-    sprite_t* sp = get_visible_sprites(param, &nsp);
-
-    qsort(sp, nsp, sizeof(sprite_t), cmp_sprites);  /* order by dist DESC */
-
-    for( int i=0; i<nsp; i++ ) {
-        int sh = get_wall_height(sp[i].dist); /* sprite height (=width) */
-
-        double angle = sp[i].th - param->th; /* angle of sprite relative to FOV center */
-        if( angle > M_PI ) angle -= _2PI;   /* ensures -pi < angle < +pi */
-        else if( angle < -M_PI ) angle += _2PI;
-
-        int cx = (int)((FOVH_2 - angle) * PIXEL_PER_ANGLE); /* screen pos of sprite, in pixels */
-        int xmin = max(0, cx - sh/2); /* clipping */
-        int xmax = min(SX, cx + sh/2);
-
-        for( int x=xmin; x<xmax; x++ ) {
-            if( sp[i].dist > param->zbuf[x] ) continue; /* behind wall */
-            //if( sp[i].dist < PL_RADIUS ) continue; /* too close */
-
-            double txratio = (double)(x-cx)/sh + 0.5;
-            int tx = (int)(txratio * 64); /* texture col # */
-            int y0 = (int)((SY - sh)/2.0);
-
-            for( int y=max(0, y0); y<min(SY, y0+sh); y++ ) {
-                int ty = (int)((double)(y-y0) * 64 / sh); /* texture row # */
-            	param->data[y * SX + x] = param->texture2[64 * ty + tx];
-            }
-        }
-    }
-    if( nsp > 0 ) free(sp);
 }
 
 void
@@ -372,8 +270,6 @@ render( t_param *param )
 
 	int x;
 	int y;
-	int	*vis;
-	double zbuf[SX]; /* distances to the wall slices */
 	y = -1;
 	while (++y < SY)
 	{
@@ -385,14 +281,9 @@ render( t_param *param )
     
     for( int x=0; x<SX; x++ ) {
         dir_t wdir;     /* direction of wall */
-        double wdist = cast_single_ray(x, param, &wdir, vis);
-		param->zbuf[x] = wdist;
-		double txratio = (wdir == DIR_W || wdir == DIR_E) ? (param->wy-floor(param->wy)) : (param->wx-floor(param->wx));
-    	param->tx = (int)(floor(txratio * 64)); /* texture col # */
-        draw_wall(param, wdist, x, wdir);
+        double wdist = cast_single_ray(x, param, &wdir);
+        draw_wall(param, wdist, x, wall_colors[wdir]);
     }
-		/* draw sprites using visibility & distances */
-    	draw_sprites(param);
     mlx_put_image_to_window(param->mlx, param->win, param->img_ptr, 0, 0);
 }
 
@@ -434,14 +325,11 @@ void	load_texture(t_param *info)
 	load_image(info, info->texture[1], "textures/redbrick.xpm");
 	load_image(info, info->texture[2], "textures/purplestone.xpm");
 	load_image(info, info->texture[3], "textures/greystone.xpm");
-	load_image(info, info->texture2, "textures/pillar.xpm");
-	//load_image(info, info->texture[4], "textures/bluestone.xpm");
-	//load_image(info, info->texture[5], "textures/mossy.xpm");
-	//load_image(info, info->texture[6], "textures/wood.xpm");
-	//load_image(info, info->texture[7], "textures/colorstone.xpm");
+	load_image(info, info->texture[4], "textures/bluestone.xpm");
+	load_image(info, info->texture[5], "textures/mossy.xpm");
+	load_image(info, info->texture[6], "textures/wood.xpm");
+	load_image(info, info->texture[7], "textures/colorstone.xpm");
 }
-
-
 
 int
 main( int ac, char** av )
@@ -461,34 +349,20 @@ main( int ac, char** av )
         exit(1);
     }
 
-	if (!(param.texture = (int **)malloc(sizeof(int *) * 4)))
+	if (!(param.texture = (int **)malloc(sizeof(int *) * 8)))
 		return (-1);
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 8; i++)
 	{
 		if (!(param.texture[i] = (int *)malloc(sizeof(int) * (texHeight * texWidth))))
 			return (-1);
 	}
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 8; i++)
 	{
 		for (int j = 0; j < texHeight * texWidth; j++)
 		{
 			param.texture[i][j] = 0;
 		}
-	for (int i = 0; i < texHeight * texWidth; i++)
-		param.texture2[i] = 0;
 	}
-	if (!(param.visible = (int **)malloc(sizeof(int *) * MAPX)))
-		return (-1);
-	for (int i = 0; i < MAPX; i++)
-	{
-		if (!(param.visible[i] = (int *)malloc(sizeof(int) * MAPY)))
-			return (-1);
-	}
-		for (int i = 0; i < MAPX; i++)
-		{
-			for (int j = 0; j < MAPY; j++)
-				param.visible[i][j] = 0;
-		}
 
     param.px = atof(av[1]);
     param.py = atof(av[2]);
