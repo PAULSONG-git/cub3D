@@ -38,23 +38,6 @@ int		ft_cubed(t_all s, char *cub, int bmp)
 	s.img.ptr = mlx_new_image(s.mlx.ptr, s.win.x, s.win.y);
 	s.img.data = (int *)mlx_get_data_addr(s.img.ptr, &s.img.bpp, &s.img.size_l, &s.img.endian);
 
-	if (!(s.tex.visible = (int **)malloc(sizeof(int *) * s.map.x)))
-		return (-1);
-	for (int i = 0; i < s.map.x; i++)
-	{
-		if (!(s.tex.visible[i] = (int *)malloc(sizeof(int) * s.map.y)))
-			return (-1);
-	}
-	for (int i = 0; i < s.map.x; i++)
-	{
-		for (int j = 0; j < s.map.y; j++)
-			s.tex.visible[i][j] = 0;
-	}
-
-	if (!(s.tex.zbuf = (double *)malloc(sizeof(double) * s.map.x)))
-		return (-1);
-
-
 	render(&s);
 	mlx_hook(s.win.ptr, X_EVENT_KEY_PRESS, 0, &key_press, &s);
 	
@@ -81,83 +64,43 @@ int		ft_cubed(t_all s, char *cub, int bmp)
 	mlx_loop(s.mlx.ptr);
 	return (1);
 }
-
-static int
-cmp_sprites( const void* a, const void* b )
+/*
+double
+get_luminosity(t_all *s, double dist )
 {
-    return (((const t_spr*)a)->dist > ((const t_spr*)b)->dist) ? -1 : 1;
+    static double D = -1;
+    if( D < 0 ) D = (s->map.x + s->map.y)/2.0;
+    return (dist > D) ? 0 : (1. - dist/D);
 }
 
-static t_spr
-get_visible_sprites( t_all *s, int* pcnt )
+int
+fade_color( int color, double lum )
 {
-    int n = 0;
-    t_spr *sp = NULL; /* dynamic array */
-
-    /* build list of visible sprites */
-    for( int x=0; x<s.map.x; x++ ) {
-        for( int y=0; y<s.map.y; y++ ) {
-            if( s->tex.visible[x][y] == 0 || map_get_cell(s, x,y) <= 1 )
-                continue;
-
-            if( n == 0 ) sp = (t_spr*) malloc(sizeof(t_spr));
-            else sp = (t_spr*) realloc(sp, sizeof(t_spr)*(n+1));
-
-            sp[n].tex = map_get_cell(s, x,y) + 2;
-            sp[n].x = x;
-            sp[n].y = y;
-            sp[n].th = atan2((y+0.5)-(s->pos.y), (x+0.5)-(s->pos.x));
-            if( sp[n].th < 0 ) sp[n].th += _2PI;
-            sp[n].dist = l2dist(s->pos.x, s->pos.y, x+0.5, y+0.5) * cos(s->pos.th - sp[n].th);
-            n++;
-        }
-    }
-    *pcnt = n;
-    return sp;
+    if( lum < 0 ) lum = 0;
+    else if( lum > 1 ) lum = 1;
+    int r, g, b;
+    decode_color(color, &r, &g, &b);
+    return encode_color( (int)(r*lum), (int)(g*lum), (int)(b*lum) );
 }
 
-
-static void
-draw_sprites( t_all *s )
+int		decode_color(unsigned int color, int *r, int *g, int *b)
 {
-    int nsp = 0;
-	static const double PIXEL_PER_ANGLE = (s->win.x-1) / FOV_H;
-    t_spr *sp = get_visible_sprites(s, &nsp);
-
-    qsort(sp, nsp, sizeof(t_spr), cmp_sprites);  /* order by dist DESC */
-
-    for( int i=0; i<nsp; i++ ) {
-        int sh = get_wall_height(sp[i].dist); /* sprite height (=width) */
-        int color = (sp[i].tex);
-
-        double angle = sp[i].th - s->pos.th; /* angle of sprite relative to FOV center */
-        if( angle > M_PI ) angle -= _2PI;   /* ensures -pi < angle < +pi */
-        else if( angle < -M_PI ) angle += _2PI;
-
-        int cx = (int)((FOVH_2 - angle) * PIXEL_PER_ANGLE); /* screen pos of sprite, in pixels */
-        int xmin = max(0, cx - sh/2); /* clipping */
-        int xmax = min(s->win.x, cx + sh/2);
-
-        for( int x=xmin; x<xmax; x++ ) {
-            if( sp[i].dist > r->zbuf[x] ) continue; /* behind wall */
-            //if( sp[i].dist < 0.1 ) continue; /* too close */
-			int color2;
-
-            double txratio = (double)(x-cx)/sh + 0.5;
-            int tx = (int)(txratio * 64); /* texture col # */
-            int y0 = (int)((s->win.y - sh)/2.0);
-
-            for( int y=max(0, y0); y<min(s->win.y, y0+sh); y++ ) {
-                int ty = (int)((double)(y-y0) * 64/ sh); /* texture row # */
-				color2 = r->texture[color][64 * ty + tx];
-                if( (color2 & 0x00ffffff) == 0 ) continue; /* black == transparent */
-				r->data[y * s->win.x + x] = r->texture[color][64 * (ty) + (tx)];
-            }
-        }
-    }
-    if( nsp > 0 ) free(sp);
+	if (color != NONE)
+		return (-5);
+	*r = color & 0x11110000;
+	*g = color & 0x11001100;
+	*b = color & 0x11000011;
+	return (0);
 }
 
+int		encode_color( int r, int g, int b)
+{
+	if (r > 255 || g > 255 || b > 255)
+		return (-6);
+	int color = r * 256 * 256 + g * 256 + b;
+	return (color);
+}
+*/
 
 int				key_press(int key, t_all *s)
 {
@@ -249,9 +192,6 @@ render( t_all *s )
     	s->tex.tx = (int)(floor(txratio * 64)); /* texture col # */
 		
 		draw_wall(s, wdist, x, wdir);
-
-		/* draw sprites using visibility & distances */
-    	draw_sprites(s);
     }
     mlx_put_image_to_window(s->mlx.ptr, s->win.ptr, s->img.ptr, 0, 0);
 }
@@ -365,7 +305,6 @@ get_wall_intersection(t_all *s,  double ray, double px, double py, dir_t* wdir, 
             hit = true;
             break;
         }
-			s->tex.visible[mapx][mapy] = 1;  /* 이 행을 추가 ! */
 
         if( hit_side == VERT ) nx += xstep;
         else ny += ystep;
@@ -407,7 +346,7 @@ void	ft_declare(t_all s, char *cub, int bmp)
 	
 	t_map	map;
 	t_tex	tex;
-	t_spr	*spr;
+	//t_spr	*spr;
 	//t_stk	*stk;
 
 	map.tab = NULL;
@@ -416,8 +355,6 @@ void	ft_declare(t_all s, char *cub, int bmp)
 	tex.e = NULL;
 	tex.w = NULL;
 	tex.i = NULL;
-	tex.visible = NULL;
-	tex.zbuf = NULL;
 	//spr = NULL;
 	//stk = NULL;
 	map.x = 0;
@@ -433,7 +370,7 @@ void	ft_declare(t_all s, char *cub, int bmp)
 	tex.wy = 0;
 	s.map = map;
 	s.tex = tex;
-	s.spr = spr;
+	//s.spr = spr;
 	//s.stk = stk;
 	
 	ft_cubed(s, cub, bmp);

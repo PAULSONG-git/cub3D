@@ -115,8 +115,6 @@ typedef struct	s_tex
 	int				ty;
 	double			wx;
 	double			wy;
-	int				**visible;
-	double			*zbuf;
 }				t_tex;
 
 typedef struct	s_pos
@@ -165,15 +163,6 @@ typedef struct	s_stk
 	double			d;
 }				t_stk;
 */
-
-typedef struct s_spr
-{
-    int tex;     /* texture bitmap no. */
-    int x, y;    /* position in the map */
-    double dist; /* distance from the player */
-    double th;   /* angle */
-} t_spr;
-
 typedef struct	s_all
 {
 	t_mlx			mlx;
@@ -186,7 +175,7 @@ typedef struct	s_all
 //	t_dir			dir;
 //	t_ray			ray;
 //	t_hit			hit;
-	t_spr			*spr;
+//	t_spr			*spr;
 //	t_stk			*stk;
 }				t_all;
 
@@ -271,7 +260,9 @@ int				key_press(int key, t_all *s);
 void			player_rotate( t_all *s, double th );
 static int		get_move_offset( double th, int key, double amt, double* pdx, double* pdy );
 int				player_move( t_all *s, int key, double amt );
-
-
+double			get_luminosity(t_all *s, double dist );
+int				fade_color( int color, double lum );
+int				decode_color(unsigned int color, int *r, int *g, int *b);
+int				encode_color(int r, int g, int b);
 
 #endif
