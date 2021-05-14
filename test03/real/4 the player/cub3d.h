@@ -248,8 +248,16 @@ char			*ft_strjoin(char *s1, char *s2);
 int				map_get_cell(t_all *s, int x, int y );
 int				sgn( double d );
 double			l2dist( double x0, double y0, double x1, double y1 );
-double			cast_single_ray(t_all *s, int x );
-bool
-get_wall_intersection(t_all *s, double ray, double px, double py, dir_t* wdir, double* wx, double* wy );
+double			cast_single_ray(t_all *s, int x, dir_t *wdir);
+bool			get_wall_intersection(t_all *s, double ray, double px, double py, dir_t* wdir, double* wx, double* wy );
+int				get_wall_height(t_all *s, double dist );
+void			draw_wall(t_all *s, double wdist, int x, int color);
+void			render( t_all *s );
+int				key_press(int key, t_all *s);
+void			player_rotate( t_all *s, double th );
+static int		get_move_offset( double th, int key, double amt, double* pdx, double* pdy );
+int				player_move( t_all *s, int key, double amt );
+
+
 
 #endif
