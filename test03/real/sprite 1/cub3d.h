@@ -48,7 +48,7 @@ static const double FOVH_2 = FOV_H / 2.0;
 #define  MOVE_UNIT  0.1
 
 #define X_EVENT_KEY_PRESS		2
-#define X_EVENT_KEY_RELEASE		3
+#define X_EVENT_KEY_release		3
 #define X_EVENT_KEY_EXIT		17 //exit key code
 
 #define KEY_ESC			53
@@ -117,7 +117,6 @@ typedef struct	s_tex
 	double			wy;
 	int				**visible;
 	double			*zbuf;
-	int				pcnt;
 }				t_tex;
 
 typedef struct	s_pos
@@ -269,7 +268,6 @@ int				get_wall_height(t_all *s, double dist );
 void			draw_wall(t_all *s, double wdist, int x, int color);
 void			render( t_all *s );
 int				key_press(int key, t_all *s);
-int				key_release(int key, t_all *s);
 void			player_rotate( t_all *s, double th );
 static int		get_move_offset( double th, int key, double amt, double* pdx, double* pdy );
 int				player_move( t_all *s, int key, double amt );

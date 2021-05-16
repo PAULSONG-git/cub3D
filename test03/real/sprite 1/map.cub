@@ -4,7 +4,7 @@ SO ./textures/bluestone.xpm
 WE ./textures/wood.xpm
 EA ./textures/greystone.xpm
 
-S ./textures/barrel.xpm
+S ./textures/pillar.xpm
 
 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
 1 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1

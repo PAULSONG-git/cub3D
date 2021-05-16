@@ -35,8 +35,8 @@ int		ft_cubed(t_all s, char *cub, int bmp)
 	s.mlx.ptr = mlx_init();
 	ft_parse(&s, cub);
 	s.win.ptr = mlx_new_window(s.mlx.ptr, s.win.x, s.win.y, "ex02");
-	//s.img.ptr = mlx_new_image(s.mlx.ptr, s.win.x, s.win.y);
-	//s.img.data = (int *)mlx_get_data_addr(s.img.ptr, &s.img.bpp, &s.img.size_l, &s.img.endian);
+	s.img.ptr = mlx_new_image(s.mlx.ptr, s.win.x, s.win.y);
+	s.img.data = (int *)mlx_get_data_addr(s.img.ptr, &s.img.bpp, &s.img.size_l, &s.img.endian);
 
 	if (!(s.tex.visible = (int **)malloc(sizeof(int *) * s.map.x)))
 		return (-1);
@@ -53,6 +53,8 @@ int		ft_cubed(t_all s, char *cub, int bmp)
 
 	if (!(s.tex.zbuf = (double *)malloc(sizeof(double) * s.win.x)))
 		return (-1);
+
+
 	render(&s);
 	mlx_hook(s.win.ptr, X_EVENT_KEY_PRESS, 0, &key_press, &s);
 	
@@ -63,7 +65,6 @@ int		ft_cubed(t_all s, char *cub, int bmp)
 		}
         putchar('\n');
     }
-	
 	/*
 	if (bmp == 1)
 		return (ft_bitmap(&s));
@@ -96,7 +97,7 @@ get_visible_sprites( t_all *s, int* pcnt )
     /* build list of visible sprites */
     for( int x=0; x < s->map.x; x++ ) {
         for( int y=0; y<s->map.y; y++ ) {
-            if( map_get_cell(s, x, y) <= 1 )
+            if( s->tex.visible[x][y] == 0 || map_get_cell(s, x, y) <= 1 )
                 continue;
 
             if( n == 0 ) sp = (t_spr*) malloc(sizeof(t_spr));
@@ -139,7 +140,7 @@ draw_sprites( t_all *s )
 
         for( int x=xmin; x<xmax; x++ ) {
             if( sp[i].dist > s->tex.zbuf[x] ) continue; /* behind wall */
-			if( sp[i].dist < 0.3 ) continue; /* too close */
+            //if( sp[i].dist < 0.1 ) continue; /* too close */
 			int color2;
 
             double txratio = (double)(x-cx)/sh + 0.5;
@@ -159,24 +160,6 @@ draw_sprites( t_all *s )
 
 
 int				key_press(int key, t_all *s)
-{
-	static int a = 0;
-
-	if(key == KEY_ESC )
-		exit(0);
-	if( key == KEY_LEFT || key == KEY_RIGHT ) {
-            player_rotate(s, ROT_UNIT * (key==KEY_LEFT ? 1 : -1));
-            render(s);
-        }
-    else if( key == KEY_W || key == KEY_A || key == KEY_S || key == KEY_D ) {
-            if( player_move(s, key, MOVE_UNIT) == 0 ) {
-                render(s);
-            }
-	}
-	return (0);
-}
-
-int				key_release(int key, t_all *s)
 {
 	static int a = 0;
 
@@ -250,8 +233,6 @@ render( t_all *s )
 	int x;
 	int y;
 	y = -1;
-	s->img.ptr = mlx_new_image(s->mlx.ptr, s->win.x, s->win.y);
-	s->img.data = (int *)mlx_get_data_addr(s->img.ptr, &s->img.bpp, &s->img.size_l, &s->img.endian);
 	while (++y < s->win.y)
 	{
 		x = -1;
@@ -271,11 +252,9 @@ render( t_all *s )
 		draw_wall(s, wdist, x, wdir);
 
 		/* draw sprites using visibility & distances */
+    	draw_sprites(s);
     }
-	draw_sprites(s);
     mlx_put_image_to_window(s->mlx.ptr, s->win.ptr, s->img.ptr, 0, 0);
-	free(s->img.ptr);
-	free(s->img.data);
 }
 
 int
