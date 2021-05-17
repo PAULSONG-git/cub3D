@@ -1,8 +1,8 @@
 #include "cub3d.h"
-
+/*
 void	ft_draw(t_all *s)
 {
-/*	t_ray	ray;
+	t_ray	ray;
 	t_hit	hit;
 
 	ray.x = 0;
@@ -15,13 +15,12 @@ void	ft_draw(t_all *s)
 	hit.d = 0;
 	s->ray = ray;
 	s->hit = hit;
-	*/
-	render(s);
+	ft_screen(s);
 	mlx_put_image_to_window(s->mlx.ptr, s->win.ptr, s->img.ptr, 0, 0);
 	free(s->img.ptr);
-	free(s->img.data);
+	free(s->img.adr);
 }
-
+*/
 int		ft_cubed(t_all s, char *cub, int bmp)
 {
 	t_pos	pos;
@@ -34,9 +33,7 @@ int		ft_cubed(t_all s, char *cub, int bmp)
 	int color = 0x00FF0000;
 	
 	s.mlx.ptr = mlx_init();
-	//ft_parse(&s, cub);
-	if (ft_parse(&s, cub) == -1)
-		return (ft_close(&s, 0));
+	ft_parse(&s, cub);
 	int a = 0;
 	int b = 0;
 	char **tmp;
@@ -89,7 +86,7 @@ int		ft_cubed(t_all s, char *cub, int bmp)
 			}
 			if (c == 1)
 			{	
-				//printf("invaid map\n");
+				printf("invaid map\n");
 			}
 			b++;
 		}
@@ -98,7 +95,7 @@ int		ft_cubed(t_all s, char *cub, int bmp)
 	}
 
 
-	//s.win.ptr = mlx_new_window(s.mlx.ptr, s.win.x, s.win.y, "ex02");
+	s.win.ptr = mlx_new_window(s.mlx.ptr, s.win.x, s.win.y, "ex02");
 	//s.img.ptr = mlx_new_image(s.mlx.ptr, s.win.x, s.win.y);
 	//s.img.data = (int *)mlx_get_data_addr(s.img.ptr, &s.img.bpp, &s.img.size_l, &s.img.endian);
 
@@ -117,19 +114,16 @@ int		ft_cubed(t_all s, char *cub, int bmp)
 
 	if (!(s.tex.zbuf = (double *)malloc(sizeof(double) * s.win.x)))
 		return (-1);
-	if (bmp == 1)
-		return (ft_bitmap(&s));
-	s.win.ptr = mlx_new_window(s.mlx.ptr, s.win.x, s.win.y, "ex02");
-	ft_draw(&s);
+	render(&s);
 	mlx_hook(s.win.ptr, X_EVENT_KEY_PRESS, 0, &key_press, &s);
 	
 		/* print map */
-    /*for( int y=s.map.l-1; y>=0; y-- ) {
+    for( int y=s.map.l-1; y>=0; y-- ) {
         for( int x=0; x<s.map.x; x++ ) {
         	printf("%c", s.map.tab[x][y]);
 		}
         putchar('\n');
-    }*/
+    }
 	//printf("%d\n", s.map.x);
 	//printf("%d\n", s.map.y);
 	
@@ -235,11 +229,11 @@ int				key_press(int key, t_all *s)
 		exit(0);
 	if( key == KEY_LEFT || key == KEY_RIGHT ) {
             player_rotate(s, ROT_UNIT * (key==KEY_LEFT ? 1 : -1));
-			ft_draw(s);
+            render(s);
         }
     else if( key == KEY_W || key == KEY_A || key == KEY_S || key == KEY_D ) {
             if( player_move(s, key, MOVE_UNIT) == 0 ) {
-			ft_draw(s);
+                render(s);
             }
 	}
 	return (0);
@@ -327,7 +321,7 @@ render( t_all *s )
 		while (++x < s->win.x)
 			s->img.data[s->win.x * y + x] = 0x000000;
 	}
-    //mlx_put_image_to_window(s->mlx.ptr, s->win.ptr, s->img.ptr, 0, 0);
+    mlx_put_image_to_window(s->mlx.ptr, s->win.ptr, s->img.ptr, 0, 0);
     
     for( int x=0; x<s->win.x; x++ ) {
         dir_t wdir;     /* direction of wall */
@@ -342,9 +336,9 @@ render( t_all *s )
 		/* draw sprites using visibility & distances */
     }
 	draw_sprites(s);
-    //mlx_put_image_to_window(s->mlx.ptr, s->win.ptr, s->img.ptr, 0, 0);
-	//free(s->img.ptr);
-	//free(s->img.data);
+    mlx_put_image_to_window(s->mlx.ptr, s->win.ptr, s->img.ptr, 0, 0);
+	free(s->img.ptr);
+	free(s->img.data);
 }
 
 int
@@ -366,9 +360,9 @@ draw_wall(t_all *s, double wdist, int x, int color )
 	int xx;
 xx = -1;
 while (++xx < s->win.y / 2)
-	s->img.data[xx * s->win.x + x] = s->tex.c;
+	s->img.data[xx * s->win.x + x] = 0x00bbbbbb;
 while (++xx < s->win.y)
-	s->img.data[xx * s->win.x + x] = s->tex.f;
+	s->img.data[xx * s->win.x + x] = 0x00FF0000;
 
     /* needs clipping */
     int ystart = max(0, y0);

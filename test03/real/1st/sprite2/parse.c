@@ -20,11 +20,11 @@ int		ft_line(t_all *s, char *line)
 		ft_texture(s, &s->tex.e, line, &i);
 	else if (line[i] == 'S' && line[i + 1] == ' ')
 		ft_texture(s, &s->tex.i, line, &i);
-	else if (line[i] == 'F' && line[i + 1] == ' ')
+	/*else if (line[i] == 'F' && line[i + 1] == ' ')
 		ft_colors(&s->tex.f, line, &i);
 	else if (line[i] == 'C' && line[i + 1] == ' ')
 		ft_colors(&s->tex.c, line, &i);
-	
+	*/
 	//if (ft_spaceskip(line, &i) && s->err.n == 0 && line[i] != '\0')
 	//	return (-1);
 	return (0);

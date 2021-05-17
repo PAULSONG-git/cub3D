@@ -16,7 +16,7 @@ int		ft_res(t_all *s, char *line, int *i)
 		return (-4);
 	return (0);
 }
-
+/*
 int		ft_colors(unsigned int *color, char *line, int *i)
 {
 	int	r;
@@ -37,7 +37,7 @@ int		ft_colors(unsigned int *color, char *line, int *i)
 	*color = r * 256 * 256 + g * 256 + b;
 	return (0);
 }
-
+*/
 void	ft_pos(t_all *s)
 {
 	char	c;
