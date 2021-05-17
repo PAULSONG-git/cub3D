@@ -89,12 +89,16 @@ int		ft_cubed(t_all s, char *cub, int bmp)
 			}
 			if (c == 1)
 			{	
-				//printf("invaid map\n");
+				ft_strerror(-19);
 			}
 			b++;
 		}
 		b = 0;
 		a++;
+	}
+	if (c == 1)
+	{
+		ft_strerror(-19);
 	}
 
 
@@ -538,7 +542,7 @@ void	ft_init(char *cub, int bmp)
 	t_mlx	mlx;
 	t_win	win;
 	t_img	img;
-	//t_err	err;
+	t_err	err;
 
 	mlx.ptr = NULL;
 	win.ptr = NULL;
@@ -548,13 +552,21 @@ void	ft_init(char *cub, int bmp)
 	win.y = 0;
 	win.ANGLE_PER_PIXEL = 0;
 	win.FOV_V = 0;
-	//err.n = 0;
-	//err.m = 0;
-	//err.p = 0;
+	err.n = 0;
+	err.m = 0;
+	err.p = 0;
+	err.R = 0; 
+	err.NO = 0;
+	err.SO = 0;
+	err.WE = 0;
+	err.EA = 0;
+	err.S = 0;
+	err.F = 0;
+	err.C = 0;
 	s.mlx = mlx;
 	s.win = win;
 	s.img = img;
-	//s.err = err;
+	s.err = err;
 	ft_declare(s, cub, bmp);
 }
 

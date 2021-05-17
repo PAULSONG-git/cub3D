@@ -26,7 +26,6 @@ int		ft_namecheck(char *arg, char *ext)
 		return (1);
 	return (0);
 }
-/*
 int		ft_mapcheck(t_all *s)
 {
 	int		i;
@@ -71,4 +70,3 @@ int		ft_parcheck(t_all *s)
 		return (ft_strerror(-19));
 	return (1);
 }
-*/

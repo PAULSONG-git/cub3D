@@ -101,7 +101,7 @@ int		ft_map(t_all *s, char *line, int *i)
 {
 	char	**tmp;
 	int		j;
-	//s->err.m = 1;
+	s->err.m = 1;
 	if (!(tmp = malloc(sizeof(char *) * (s->map.x + 2))))
 		return (-11);
 	j = -1;

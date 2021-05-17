@@ -86,14 +86,22 @@ typedef struct	s_img
 	int				bpp;
 	int				endian;
 }				t_img;
-/*
+
 typedef struct	s_err
 {
 	int				n;
 	int				m;
 	int				p;
+	int				R;
+	int				NO;
+	int				SO;
+	int				WE;
+	int				EA;
+	int				S;
+	int				F;
+	int				C;
 }				t_err;
-*/
+
 typedef struct	s_map
 {
 	char			**tab;
@@ -181,7 +189,7 @@ typedef struct	s_all
 	t_mlx			mlx;
 	t_win			win;
 	t_img			img;
-//	t_err			err;
+	t_err			err;
 	t_map			map;
 	t_tex			tex;
 	t_pos			pos;
