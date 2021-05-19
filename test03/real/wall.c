@@ -128,14 +128,10 @@ render( t_all *s )
 		
 		double txratio = (wdir == DIR_W || wdir == DIR_E) ? (s->tex.wy-floor(s->tex.wy)) : (s->tex.wx-floor(s->tex.wx));
     	s->tex.tx = (int)(floor(txratio * 64)); /* texture col # */
-		
 		draw_wall(s, wdist, x, wdir);
 
 		/* draw sprites using visibility & distances */
     }
 	draw_sprites(s);
-    //mlx_put_image_to_window(s->mlx.ptr, s->win.ptr, s->img.ptr, 0, 0);
-	//free(s->img.ptr);
-	//free(s->img.data);
 }
 

@@ -69,7 +69,7 @@ void	ft_pos(t_all *s)
 				else if (c == 'W')
 					th = 180;
 				else if (c == 'S')
-					th = 240;
+					th = 270;
 				s->pos.th = deg2rad(th);
 				s->err.p++;
 			}

@@ -44,8 +44,8 @@ static const double FOVH_2 = FOV_H / 2.0;
 
 #define  _2PI       6.28318530717958647692  /* 2 * M_PI */
 
-#define  ROT_UNIT   0.03    /* rad */
-#define  MOVE_UNIT  0.1
+#define  ROT_UNIT   0.06    /* rad */
+#define  MOVE_UNIT  0.2
 
 #define X_EVENT_KEY_PRESS		2
 #define X_EVENT_KEY_RELEASE		3
