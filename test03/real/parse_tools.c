@@ -12,7 +12,7 @@ int		ft_res(t_all *s, char *line, int *i)
 	if (s->win.y > 1400)
 		s->win.y = 1400;
 	ft_spaceskip(line, i);
-	if (s->win.x <= 0 || s->win.y <= 0 || line[*i] != '\0')
+	if (s->win.x <= 1 || s->win.y <= 1 || line[*i] != '\0')
 		return (-4);
 	s->win.ANGLE_PER_PIXEL = FOV_H / (s->win.x-1);
 	s->win.FOV_V = (FOV_H*(double)s->win.y/(double)s->win.x);

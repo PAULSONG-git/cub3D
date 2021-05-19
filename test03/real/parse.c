@@ -49,7 +49,6 @@ int		ft_parse(t_all *s, char *cub)
 	close(fd);
 	map_extend(s);
 	ft_pos(s);
-	sprite_init(s);
 	if (ret == -1 || ret == -3)
 		return (ft_strerror(ret + 1));
 	return (ft_parcheck(s));

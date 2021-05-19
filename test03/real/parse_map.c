@@ -74,6 +74,8 @@ char	*ft_slab(t_all *s, char *line, int *i)
 	if (!(slab = malloc(sizeof(char) * (ft_slablen(s, line)) + 1)))
 		return (NULL);
 	j = 0;
+	while (j < *i)
+		slab[j++] = ' ';
 	while (line[*i] != '\0')
 	{
 		if ((line[*i] == '0' || line[*i] == '1' || line[*i] == 'N')

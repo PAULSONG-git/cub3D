@@ -33,6 +33,8 @@ int		ft_cubed(t_all s, char *cub, int bmp)
 	if (ft_parse(&s, cub) == -1)
 		return (ft_close(&s, 0));
 
+	sprite_init(&s);
+
 	if (bmp == 1)
 		return (ft_bitmap(&s));
 	s.win.ptr = mlx_new_window(s.mlx.ptr, s.win.x, s.win.y, "ex02");
