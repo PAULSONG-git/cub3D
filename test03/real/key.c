@@ -19,67 +19,71 @@ int		ft_close(t_all *s, int win)
 	exit(0);
 	return (1);
 }
-/*
-void	ft_move(t_all *s, double c)
+
+int				key_press(int key, t_all *s)
 {
-	s->pos.x += c * (s->dir.x * SPEED / 100);
-	if (s->map.tab[(int)floor(s->pos.y)][(int)floor(s->pos.x)] == '1')
-		s->pos.x -= c * (s->dir.x * SPEED / 100);
-	s->pos.y += c * (s->dir.y * SPEED / 100);
-	if (s->map.tab[(int)floor(s->pos.y)][(int)floor(s->pos.x)] == '1')
-		s->pos.y -= c * (s->dir.y * SPEED / 100);
-	if (s->map.tab[(int)floor(s->pos.y)][(int)floor(s->pos.x)] == '2')
-	{
-		s->map.tab[(int)floor(s->pos.y)][(int)floor(s->pos.x)] = '0';
-		s->map.spr--;
-		ft_slist(s);
+	static int a = 0;
+
+	if(key == KEY_ESC )
+		exit(0);
+	if( key == KEY_LEFT || key == KEY_RIGHT ) {
+            player_rotate(s, ROT_UNIT * (key==KEY_LEFT ? 1 : -1));
+			ft_draw(s);
+        }
+    else if( key == KEY_W || key == KEY_A || key == KEY_S || key == KEY_D ) {
+            if( player_move(s, key, MOVE_UNIT) == 0 ) {
+			ft_draw(s);
+            }
 	}
+	return (0);
 }
 
-void	ft_strafe(t_all *s, double c)
+void
+player_rotate( t_all* s, double th )
 {
-	s->pos.x -= c * (s->dir.y * SPEED / 100);
-	if (s->map.tab[(int)floor(s->pos.y)][(int)floor(s->pos.x)] == '1')
-		s->pos.x += c * (s->dir.y * SPEED / 100);
-	s->pos.y += c * (s->dir.x * SPEED / 100);
-	if (s->map.tab[(int)floor(s->pos.y)][(int)floor(s->pos.x)] == '1')
-		s->pos.y -= c * (s->dir.x * SPEED / 100);
-	if (s->map.tab[(int)floor(s->pos.y)][(int)floor(s->pos.x)] == '2')
-	{
-		s->map.tab[(int)floor(s->pos.y)][(int)floor(s->pos.x)] = '0';
-		s->map.spr--;
-		ft_slist(s);
-	}
+    s->pos.th += th;
+    if( s->pos.th < 0 ) s->pos.th += _2PI;
+    else if( s->pos.th > _2PI ) s->pos.th -= _2PI;
 }
 
-void	ft_rotate(t_all *s, double c)
+static int
+get_move_offset( double th, int key, double amt, double* pdx, double* pdy )
 {
-	double	dist;
-
-	s->dir.x = s->dir.x * cos(c * TURN) - s->dir.y * sin(c * TURN);
-	s->dir.y = s->dir.y * cos(c * TURN) + s->dir.x * sin(c * TURN);
-	dist = hypot(s->dir.x, s->dir.y);
-	s->dir.x /= dist;
-	s->dir.y /= dist;
+    switch( key ) {
+        case KEY_W:
+        case KEY_S:
+            *pdx = (key==KEY_W ? 1 : -1) * amt * cos(th);
+            *pdy = (key==KEY_W ? 1 : -1) * amt * sin(th);
+            break;
+        case KEY_A:
+        case KEY_D:
+            *pdx = amt * cos(th + (key==KEY_A ? 1 : -1) * M_PI_2);
+            *pdy = amt * sin(th + (key==KEY_A ? 1 : -1) * M_PI_2);
+            break;
+		default: /* invalid */
+            return -1;
+    }
+    return 0;
 }
 
-int		ft_key(int key, void *arg)
+int
+player_move( t_all *s, int key, double amt )
 {
-	if (key == ESC)
-		ft_close(arg, 1);
-	else if (key == W)
-		ft_move(arg, 1);
-	else if (key == A)
-		ft_strafe(arg, -1);
-	else if (key == S)
-		ft_move(arg, -1);
-	else if (key == D)
-		ft_strafe(arg, 1);
-	else if (key == LEFT)
-		ft_rotate(arg, -1);
-	else if (key == RIGHT)
-		ft_rotate(arg, 1);
-	ft_draw(arg);
-	return (1);
+    double dx=0, dy=0;
+    double nx, ny;
+
+    if( get_move_offset(s->pos.th, key, amt, &dx, &dy) < 0 ) {
+        fprintf(stderr,"player_move: invalid key %d\n", key);
+        return -1;
+    }
+    nx = s->pos.x + dx;
+    ny = s->pos.y + dy;
+
+    if( map_get_cell(s, (int)nx, (int)ny) != 0) {
+        printf("** bump !\n");
+        return -1;
+    }
+    s->pos.x = nx;
+    s->pos.y = ny;
+    return 0;
 }
-*/

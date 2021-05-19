@@ -1,5 +1,18 @@
 #include "cub3d.h"
 
+int		ft_namecheck(char *arg, char *ext)
+{
+	int	i;
+
+	i = 0;
+	while (arg[i] != '\0')
+		i++;
+	if ((i > 4 && arg[i - 1] == ext[2] && arg[i - 2] == ext[1])
+		&& (arg[i - 3] == ext[0] && arg[i - 4] == '.'))
+		return (1);
+	return (0);
+}
+
 int		ft_savecheck(char *arg, char *save)
 {
 	int	i;
@@ -14,43 +27,53 @@ int		ft_savecheck(char *arg, char *save)
 	return (0);
 }
 
-int		ft_namecheck(char *arg, char *ext)
-{
-	int	i;
-
-	i = 0;
-	while (arg[i] != '\0')
-		i++;
-	if ((i > 4 && arg[i - 1] == ext[2] && arg[i - 2] == ext[1])
-		&& (arg[i - 3] == ext[0] && arg[i - 4] == '.'))
-		return (1);
-	return (0);
-}
 int		ft_mapcheck(t_all *s)
 {
-	int		i;
-	int		j;
-
-	i = 0;
-	j = 0;
-	while (i < s->map.y)
+	int a = 0;
+	int b = 0;
+	int c = 0;
+	while (a < s->map.x)
 	{
-		j = 0;
-		while (j < s->map.x)
+		while (b < s->map.l)
 		{
-			if (s->map.tab[i][j] != '1' && i == 0)
-				return (-1);
-			else if (s->map.tab[i][j] != '1' && i == s->map.y - 1)
-				return (-1);
-			else if (s->map.tab[i][j] != '1' && j == 0)
-				return (-1);
-			else if (s->map.tab[i][j] != '1' && j == s->map.x - 1)
-				return (-1);
-			j++;
+			if (!(s->map.tab[a][b] == '1' || s->map.tab[a][b] == ' '))
+			{
+				if (s->map.tab[a][b+1] == ' ')
+					c = 1;	
+				if (b > 0)
+				{
+					if (s->map.tab[a][b-1] == ' ')
+						c = 1;
+					if (a > 0)
+						if(s->map.tab[a-1][b-1] == ' ')
+							c = 1;
+				}
+				if (a < s->map.x - 1)
+				{
+					if (s->map.tab[a+1][b] == ' ')
+						c = 1;
+					if (b > 0)
+						if (s->map.tab[a+1][b-1] == ' ')
+							c = 1;
+					if (s->map.tab[a+1][b+1] == ' ')
+						c = 1;
+				}
+				if (a > 0)
+				{
+					if (s->map.tab[a-1][b] == ' ')
+						c = 1;
+					if (s->map.tab[a-1][b+1] == ' ')
+						c = 1;
+				}
+				if (a == 0 || a == s->map.x -1 || b == 0 || b == s->map.l -1)
+					c = 1;
+			}
+			b++;
 		}
-		i++;
+		b = 0;
+		a++;
 	}
-	return (1);
+	return (c == 1 ? -1 : 0 );
 }
 
 int		ft_parcheck(t_all *s)

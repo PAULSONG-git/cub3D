@@ -9,49 +9,24 @@ int		ft_line(t_all *s, char *line)
 	if ((line[i] == '1') && line[i] != '\0')
 		s->err.n = ft_map(s, line, &i);
 	else if (line[i] == 'R' && line[i + 1] == ' ')
-	{
 		s->err.n = ft_res(s, line, &i);
-		errorcheck1(s, 1);
-	}
 	else if (line[i] == 'N' && line[i + 1] == 'O' && line[i + 2] == ' ')
-	{
 		s->err.n = ft_texture(s, &s->tex.n, line, &i);
-		errorcheck1(s, 2);
-	}
 	else if (line[i] == 'S' && line[i + 1] == 'O' && line[i + 2] == ' ')
-	{
 		s->err.n = ft_texture(s, &s->tex.s, line, &i);
-		errorcheck1(s, 3);
-	}
 	else if (line[i] == 'W' && line[i + 1] == 'E' && line[i + 2] == ' ')
-	{
 		s->err.n = ft_texture(s, &s->tex.w, line, &i);
-		errorcheck1(s, 4);
-	}
 	else if (line[i] == 'E' && line[i + 1] == 'A' && line[i + 2] == ' ')
-	{
 		s->err.n = ft_texture(s, &s->tex.e, line, &i);
-		errorcheck1(s, 5);
-	}
 	else if (line[i] == 'S' && line[i + 1] == ' ')
-	{
 		s->err.n = ft_texture(s, &s->tex.i, line, &i);
-		errorcheck1(s, 6);
-	}
 	else if (line[i] == 'F' && line[i + 1] == ' ')
-	{
 		s->err.n = ft_colors(&s->tex.f, line, &i);
-		errorcheck1(s, 7);
-	}
 	else if (line[i] == 'C' && line[i + 1] == ' ')
-	{
 		s->err.n = ft_colors(&s->tex.c, line, &i);
-		errorcheck1(s, 8);
-	}
 	if (ft_spaceskip(line, &i) && s->err.n == 0 && line[i] != '\0')
 		return (ft_strerror(-10));
 	return (s->err.n < 0 ? ft_strerror(s->err.n) : 0);
-	//return (0);
 }
 
 int		ft_parse(t_all *s, char *cub)
@@ -64,7 +39,6 @@ int		ft_parse(t_all *s, char *cub)
 	fd = open(cub, O_RDONLY);
 	if (fd == -1)
 		return (ft_strerror(-1));
-		//return (-1);
 	while (ret == 1)
 	{
 		ret = get_next_line(fd, &line);
@@ -73,15 +47,10 @@ int		ft_parse(t_all *s, char *cub)
 		free(line);
 	}
 	close(fd);
-	s->win.ANGLE_PER_PIXEL = FOV_H / (s->win.x-1);
-	s->win.FOV_V = (FOV_H*(double)s->win.y/(double)s->win.x);
+	map_extend(s);
+	ft_pos(s);
+	sprite_init(s);
 	if (ret == -1 || ret == -3)
 		return (ft_strerror(ret + 1));
-	//ft_pos(s);
-	//if (errorcheck2(s))
-	//	return (-1);
-	//s->spr = NULL;
-	//ft_slist(s);
-	//return (ft_parcheck(s));
-	return (0);
+	return (ft_parcheck(s));
 }

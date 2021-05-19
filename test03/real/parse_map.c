@@ -62,8 +62,6 @@ int		ft_slablen(t_all *s, char *line)
 			count++;
 		i++;
 	}
-	//if (s->map.x != 0 && s->map.x != count)
-	//	return (-1);
 	s->map.l = max(count, s->map.l);
 	return (count);
 }
@@ -84,7 +82,6 @@ char	*ft_slab(t_all *s, char *line, int *i)
 		else if (line[*i] == '2')
 		{
 			slab[j++] = line[*i];
-			//s->map.spr++;
 		}
 		else if (line[*i] != ' ')
 		{

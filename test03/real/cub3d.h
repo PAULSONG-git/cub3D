@@ -108,7 +108,6 @@ typedef struct	s_map
 	int				x;
 	int				y;
 	int				l;
-	//int			spr;
 }				t_map;
 
 typedef struct	s_tex
@@ -135,46 +134,6 @@ typedef struct	s_pos
 	double			y;
 	double			th;
 }				t_pos;
-/*
-typedef struct	s_dir
-{
-	double			x;
-	double			y;
-	double			a;
-}				t_dir;
-
-typedef struct	s_ray
-{
-	double			x;
-	double			y;
-	int				i;
-	double			v;
-	double			w;
-}				t_ray;
-
-typedef struct	s_hit
-{
-	double			wx;
-	double			wy;
-	int				tx;
-	int				ty;
-	double			d;
-}				t_hit;
-
-typedef struct	s_spr
-{
-	double			x;
-	double			y;
-	double			d;
-}				t_spr;
-
-typedef struct	s_stk
-{
-	double			x;
-	double			y;
-	double			d;
-}				t_stk;
-*/
 
 typedef struct s_spr
 {
@@ -192,12 +151,9 @@ typedef struct	s_all
 	t_err			err;
 	t_map			map;
 	t_tex			tex;
-	t_pos			pos;
-//	t_dir			dir;
-//	t_ray			ray;
-//	t_hit			hit;
 	t_spr			*spr;
-//	t_stk			*stk;
+
+	t_pos			pos;
 }				t_all;
 
 enum { VERT, HORIZ };
@@ -209,6 +165,12 @@ void			ft_init(char *cub, int bmp);
 void			ft_declare(t_all s, char *cub, int bmp);
 int				ft_cubed(t_all s, char *cub, int bmp);
 void			ft_draw(t_all *s);
+
+int				ft_namecheck(char *arg, char *ext);
+int				ft_savecheck(char *arg, char *save);
+
+
+
 
 int				ft_parse(t_all *s, char *cub);
 int				ft_line(t_all *s, char *line);
@@ -226,8 +188,8 @@ int				ft_res(t_all *s, char *line, int *i);
 
 int				ft_parcheck(t_all *s);
 int				ft_mapcheck(t_all *s);
-int				ft_savecheck(char *arg, char *save);
-int				ft_namecheck(char *arg, char *ext);
+
+
 
 int				ft_key(int key, void *arg);
 void			ft_rotate(t_all *s, double c);
@@ -282,10 +244,9 @@ int				key_release(int key, t_all *s);
 void			player_rotate( t_all *s, double th );
 static int		get_move_offset( double th, int key, double amt, double* pdx, double* pdy );
 int				player_move( t_all *s, int key, double amt );
-static t_spr 	*get_visible_sprites( t_all *s, int* pcnt );
-static int		cmp_sprites( const void* a, const void* b );
-static void		draw_sprites( t_all *s );
-void			errorcheck1(t_all *s, int type);
-int				errorcheck2(t_all *s);
-
+t_spr 	*get_visible_sprites( t_all *s, int* pcnt );
+int		cmp_sprites( const void* a, const void* b );
+void		draw_sprites( t_all *s );
+void	map_extend(t_all *s);
+int     sprite_init(t_all *s);
 #endif

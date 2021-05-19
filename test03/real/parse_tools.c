@@ -1,40 +1,5 @@
 #include "cub3d.h"
 
-int		errorcheck2(t_all *s)
-{
-	if ((s->err.R == 0 || s->err.NO == 0 || s->err.SO == 0) || (s->err.WE == 0 || s->err.EA == 0) || (s->err.S == 0 || s->err.F == 0 || s->err.C == 0))
-	{	
-		printf("Missing component");
-		return (1);
-	}
-	if (s->err.p != 1)
-	{
-		printf("wrong starting position");
-		return (1);
-	}
-	return (0);
-}
-
-void		errorcheck1(t_all *s, int type)
-{
-	if (type == 1)
-		(s->err.R == 1 ? ft_strerror(-14) : (s->err.R = 1));
-	else if (type == 2)
-		(s->err.NO == 1 ? ft_strerror(-14) : (s->err.NO = 1));
-	else if (type == 3)
-		(s->err.SO == 1 ? ft_strerror(-14) : (s->err.SO = 1));
-	else if (type == 4)
-		(s->err.WE == 1 ? ft_strerror(-14) : (s->err.WE = 1));
-	else if (type == 5)
-		(s->err.EA == 1 ? ft_strerror(-14) : (s->err.EA = 1));
-	else if (type == 6)
-		(s->err.S == 1 ? ft_strerror(-14) : (s->err.S = 1));
-	else if (type == 7)
-		(s->err.F == 1 ? ft_strerror(-14) : (s->err.F = 1));
-	else if (type == 8)
-		(s->err.C == 1 ? ft_strerror(-14) : (s->err.C = 1));
-}
-
 int		ft_res(t_all *s, char *line, int *i)
 {
 	if (s->win.x != 0 || s->win.y != 0)
@@ -49,6 +14,8 @@ int		ft_res(t_all *s, char *line, int *i)
 	ft_spaceskip(line, i);
 	if (s->win.x <= 0 || s->win.y <= 0 || line[*i] != '\0')
 		return (-4);
+	s->win.ANGLE_PER_PIXEL = FOV_H / (s->win.x-1);
+	s->win.FOV_V = (FOV_H*(double)s->win.y/(double)s->win.x);
 	return (0);
 }
 
@@ -110,33 +77,34 @@ void	ft_pos(t_all *s)
 		j = -1;
 	}
 }
-/*
-int		ft_slist(t_all *s)
-{
-	int		i;
-	int		j;
-	int		k;
 
-	if (s->spr != NULL)
-		free(s->spr);
-	if (!(s->spr = malloc(sizeof(t_spr) * s->map.spr)))
-		return (-1);
-	i = 0;
-	j = 0;
-	while (j < s->map.y)
+void	map_extend(t_all *s)
+{
+	int a = 0;
+	int b = 0;
+	char **tmp;
+	char **tmp2;
+	
+	tmp = malloc(sizeof(char *) * (s->map.x + 1));
+	while (a < s->map.x)
 	{
-		k = 0;
-		while (k < s->map.x)
+		tmp[a] = malloc(sizeof(char) * (s->map.l + 1));
+		while (s->map.tab[a][b] != '\0')
 		{
-			if (s->map.tab[j][k] == '2')
-			{
-				s->spr[i].y = (double)j + 0.5;
-				s->spr[i++].x = (double)k + 0.5;
-			}
-			k++;
+			tmp[a][b] = s->map.tab[a][b];
+			b++;
 		}
-		j++;
+		while (b < s->map.l)
+		{
+			tmp[a][b] = ' ';
+			b++;
+		}
+		tmp[a][b] = '\0';
+		b = 0;
+		a++;
 	}
-	return (1);
+	tmp[a] = NULL;
+	tmp2 = s->map.tab;
+	s->map.tab = tmp;
+	free(tmp2);
 }
-*/
