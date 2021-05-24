@@ -12,9 +12,9 @@
 
 #include "cub3d.h"
 
-int		ft_namecheck(char *arg, char *ext)
+int					ft_namecheck(char *arg, char *ext)
 {
-	int	i;
+	int					i;
 
 	i = 0;
 	while (arg[i] != '\0')
@@ -25,9 +25,9 @@ int		ft_namecheck(char *arg, char *ext)
 	return (0);
 }
 
-int		ft_savecheck(char *arg, char *save)
+int					ft_savecheck(char *arg, char *save)
 {
-	int	i;
+	int					i;
 
 	i = 0;
 	while (arg[i] == save[i])
@@ -39,11 +39,11 @@ int		ft_savecheck(char *arg, char *save)
 	return (0);
 }
 
-int		ft_mapcheck1(t_all *s, int a, int b, int c)
+int					ft_mapcheck1(t_all *s, int a, int b, int c)
 {
-	while (a < s->map.x)
+	while (++a < s->map.x)
 	{
-		while (b < s->map.l)
+		while (++b < s->map.l)
 		{
 			if (!(s->map.tab[a][b] == '1' || s->map.tab[a][b] == ' '))
 			{
@@ -57,42 +57,41 @@ int		ft_mapcheck1(t_all *s, int a, int b, int c)
 						if (s->map.tab[a - 1][b - 1] == ' ')
 							c = 1;
 				}
-			}
-			b++;
-		}
-		b = 0;
-		a++;
-	}
-	return (c == 1 ? -1 : 0);
-}
-
-int		ft_mapcheck2(t_all *s, int a, int b, int c)
-{
-	while (a < s->map.x)
-	{
-		while (b < s->map.l)
-		{
-			if (!(s->map.tab[a][b] == '1' || s->map.tab[a][b] == ' '))
-			{
-				if (a > 0)
-				{
-					if (s->map.tab[a - 1][b] == ' ')
-						c = 1;
-					if (s->map.tab[a - 1][b + 1] == ' ')
-						c = 1;
-				}
+				ft_mapcheck2(s, a, b, &c);
 				if (a == 0 || a == s->map.x - 1 || b == 0 || b == s->map.l - 1)
 					c = 1;
 			}
-			b++;
 		}
-		b = 0;
-		a++;
+		b = -1;
 	}
 	return (c == 1 ? -1 : 0);
 }
 
-int		ft_parcheck(t_all *s)
+void				ft_mapcheck2(t_all *s, int a, int b, int *c)
+{
+	if (!(s->map.tab[a][b] == '1' || s->map.tab[a][b] == ' '))
+	{
+		if (a < s->map.x - 1)
+		{
+			if (s->map.tab[a + 1][b] == ' ')
+				*c = 1;
+			if (b > 0)
+				if (s->map.tab[a + 1][b - 1] == ' ')
+					*c = 1;
+			if (s->map.tab[a + 1][b + 1] == ' ')
+				*c = 1;
+		}
+		if (a > 0)
+		{
+			if (s->map.tab[a - 1][b] == ' ')
+				*c = 1;
+			if (s->map.tab[a - 1][b + 1] == ' ')
+				*c = 1;
+		}
+	}
+}
+
+int					ft_parcheck(t_all *s)
 {
 	if (s->win.x <= 0 || s->win.y <= 0)
 		return (ft_strerror(-14));
@@ -105,9 +104,7 @@ int		ft_parcheck(t_all *s)
 		return (ft_strerror(-17));
 	else if (s->err.p > 1)
 		return (ft_strerror(-18));
-	else if (ft_mapcheck1(s, 0, 0, 0) == -1)
-		return (ft_strerror(-19));
-	else if (ft_mapcheck2(s, 0, 0, 0) == -1)
+	else if (ft_mapcheck1(s, -1, -1, 0) == -1)
 		return (ft_strerror(-19));
 	return (1);
 }

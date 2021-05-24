@@ -188,7 +188,7 @@ int				ft_colors(unsigned int *color, char *line, int *i);
 int				ft_res(t_all *s, char *line, int *i);
 int				ft_parcheck(t_all *s);
 int				ft_mapcheck1(t_all *s, int a, int b, int c);
-int				ft_mapcheck2(t_all *s, int a, int b, int c);
+void			ft_mapcheck2(t_all *s, int a, int b, int *c);
 int				ft_key(int key, void *arg);
 void			ft_rotate(t_all *s, double c);
 void			ft_strafe(t_all *s, double c);
