@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   cub3d.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: paul <marvin@42.fr>                        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/05/21 21:21:47 by paul              #+#    #+#             */
+/*   Updated: 2021/05/22 17:21:26 by paul             ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef CUB3D_H
 # define CUB3D_H
 
@@ -18,42 +30,27 @@
 # endif
 
 # define NONE 0xFF000000
+# define FOV 60
+# define WALL_H 1.0
+# define _2PI 6.28318530717958647692
+# define ROT_UNIT 0.05
+# define MOVE_UNIT 0.2
 
-#define  EPS            (1e-06)
-#define  is_zero(d)     (fabs(d) < EPS)
-#define  deg2rad(d)     ((d)*M_PI/180.0)    /* degree to radian */
-#define  rad2deg(d)     ((d)*180.0/M_PI)    /* radian to degree */
-#define  min(a,b)       ((a)<(b)? (a):(b))
-#define  max(a,b)       ((a)>(b)? (a):(b))
-
-#define  FOV        60      /* field of view (in degree) */
-#define  FOV_H      deg2rad(FOV)
-static const double FOVH_2 = FOV_H / 2.0;
-
-
-#define  WALL_H		1.0
-
-#define  _2PI       6.28318530717958647692  /* 2 * M_PI */
-
-#define  ROT_UNIT   0.05    /* rad */
-#define  MOVE_UNIT  0.2
-
-#define X_EVENT_KEY_PRESS		2
-#define X_EVENT_KEY_RELEASE		3
-#define X_EVENT_KEY_EXIT		17 //exit key code
-
-#define KEY_ESC			53
-#define KEY_Q			12
-#define KEY_W			13
-#define KEY_E			14
-#define KEY_R			15
-#define KEY_A			0
-#define KEY_S			1
-#define KEY_D			2
-#define KEY_LEFT 		123
-#define KEY_RIGHT 		124
-#define texWidth 64
-#define texHeight 64
+# define X_EVENT_KEY_PRESS 2
+# define X_EVENT_KEY_RELEASE 3
+# define X_EVENT_KEY_EXIT 17
+# define KEY_ESC 53
+# define KEY_Q	12
+# define KEY_W	13
+# define KEY_E	14
+# define KEY_R	15
+# define KEY_A	0
+# define KEY_S	1
+# define KEY_D	2
+# define KEY_LEFT 123
+# define KEY_RIGHT 124
+# define TEX_WIDTH 64
+# define TEX_HEIGHT 64
 
 typedef struct	s_mlx
 {
@@ -65,8 +62,10 @@ typedef struct	s_win
 	void			*ptr;
 	int				x;
 	int				y;
-	double			ANGLE_PER_PIXEL;
-	double			FOV_V;	
+	double			a_p_pixel;
+	double			fov_h;
+	double			fov_v;
+	double			fovh_2;
 }				t_win;
 
 typedef struct	s_img
@@ -83,14 +82,7 @@ typedef struct	s_err
 	int				n;
 	int				m;
 	int				p;
-	int				R;
-/*	int				NO;
-	int				SO;
-	int				WE;
-	int				EA;
-	int				S;
-	int				F;
-	int				C;*/
+	int				r;
 }				t_err;
 
 typedef struct	s_map
@@ -126,13 +118,14 @@ typedef struct	s_pos
 	double			th;
 }				t_pos;
 
-typedef struct s_spr
+typedef struct 	s_spr
 {
-    int tex;     /* texture bitmap no. */
-    int x, y;    /* position in the map */
-    double dist; /* distance from the player */
-    double th;   /* angle */
-} t_spr;
+    int				tex;
+    int				x;
+	int				y;
+    double			dist;
+    double			th;
+}				t_spr;
 
 typedef struct	s_all
 {
@@ -143,101 +136,85 @@ typedef struct	s_all
 	t_map			map;
 	t_tex			tex;
 	t_spr			*spr;
-
 	t_pos			pos;
 }				t_all;
 
-enum { VERT, HORIZ };
-
-typedef enum { false=0, true=1 } bool;
-typedef enum { DIR_N=0, DIR_E, DIR_W, DIR_S } dir_t;
+typedef struct 	s_bool
+{
+	int				false;
+	int				true;
+	int				vert;
+	int				horiz;
+	int				dir_n;
+	int				dir_e;
+	int				dir_w;
+	int				dir_s;
+}				t_bool;
 
 void			ft_init(char *cub, int bmp);
 void			ft_declare(t_all s, char *cub, int bmp);
 int				ft_cubed(t_all s, char *cub, int bmp);
 void			ft_draw(t_all *s);
-
 int				ft_namecheck(char *arg, char *ext);
 int				ft_savecheck(char *arg, char *save);
-
-
-
-
 int				ft_parse(t_all *s, char *cub);
 int				ft_line(t_all *s, char *line);
-
 int				ft_map(t_all *s, char *line, int *i);
 char			*ft_slab(t_all *s, char *line, int *i);
 int				ft_slablen(t_all *s, char *line);
 int				ft_texture(t_all *s, unsigned int **adr, char *line, int *i);
 int				ft_xpm(t_all *s, unsigned int **adr, char *file);
-
 int				ft_slist(t_all *s);
 void			ft_pos(t_all *s);
 int				ft_colors(unsigned int *color, char *line, int *i);
 int				ft_res(t_all *s, char *line, int *i);
-
 int				ft_parcheck(t_all *s);
 int				ft_mapcheck(t_all *s);
-
-
-
 int				ft_key(int key, void *arg);
 void			ft_rotate(t_all *s, double c);
 void			ft_strafe(t_all *s, double c);
 void			ft_move(t_all *s, double c);
 int				ft_close(t_all *s, int win);
-
-void			ft_screen(t_all *s);
 void			ft_ray(t_all *s);
-void			ft_dir(t_all *s);
-void			ft_ver(t_all *s);
-void			ft_hor(t_all *s);
-
-void			ft_stock(t_all *s);
-int				ft_size(t_all *s);
-void			ft_column(t_all *s, int start);
-unsigned int	ft_pixel(t_all *s, double i);
-
 void			ft_sprite(t_all *s);
-void			ft_sorder(t_all *s);
-void			ft_slocate(t_all *s, double dirx, double diry, double dist);
 void			ft_sdraw(t_all *s, int loc, double dist);
 unsigned int	ft_spixel(t_all *s, int index, unsigned int col);
-
 int				ft_bitmap(t_all *s);
 void			ft_bdraw(t_all *s);
 void			ft_bfile(t_all *s, int fd);
 void			ft_binfo(t_all *s, int fd);
 void			ft_bdata(t_all *s, int fd);
-
 int				ft_atoi(char *line, int *i);
 int				ft_spaceskip(char *line, int *i);
 int				ft_strerror(int err);
-
 int				get_next_line(int fd, char **line);
 size_t			ft_strlen(const char *s);
 size_t			ft_strlcpy(char *dest, const char *src, size_t dstsize);
 size_t			ft_strlcat(char *dest, const char *src, size_t dstsize);
 char			*ft_strdup(const char *s1);
 char			*ft_strjoin(char *s1, char *s2);
-
-int				map_get_cell(t_all *s, int x, int y );
-int				sgn( double d );
-double			l2dist( double x0, double y0, double x1, double y1 );
+int				map_get_cell(t_all *s, int x, int y);
+int				sgn(double d);
+double			l2dist(double x0, double y0, double x1, double y1);
 double			cast_single_ray(t_all *s, int x, dir_t *wdir);
-bool			get_wall_intersection(t_all *s, double ray, double px, double py, dir_t* wdir, double* wx, double* wy );
-int				get_wall_height(t_all *s, double dist );
+bool			get_wall_intersection(t_all *s, double ray,
+		double px, double py, dir_t *wdir, double *wx, double *wy);
+int				get_wall_height(t_all *s, double dist);
 void			draw_wall(t_all *s, double wdist, int x, int color);
-void			render( t_all *s );
+void			render(t_all *s);
 int				key_press(int key, t_all *s);
 int				key_release(int key, t_all *s);
-void			player_rotate( t_all *s, double th );
-int				get_move_offset( double th, int key, double amt, double* pdx, double* pdy );
-int				player_move( t_all *s, int key, double amt );
-t_spr 	*get_visible_sprites( t_all *s, int* pcnt );
-int		cmp_sprites( const void* a, const void* b );
-void		draw_sprites( t_all *s );
-void	map_extend(t_all *s);
-int     sprite_init(t_all *s);
+void			player_rotate(t_all *s, double th);
+int				get_move_offset(double th, int key, double amt,
+			double *pdx, double *pdy);
+int				player_move(t_all *s, int key, double amt);
+t_spr			*get_visible_sprites(t_all *s, int *pcnt);
+int				cmp_sprites(const void *a, const void *b);
+void			draw_sprites(t_all *s);
+void			map_extend(t_all *s);
+int				sprite_init(t_all *s);
+double			deg2rad(double d);
+double			rad2deg(double d);
+double			min(double a, double b);
+double			max(double a, double b);
 #endif

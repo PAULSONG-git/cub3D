@@ -14,8 +14,10 @@ int		ft_res(t_all *s, char *line, int *i)
 	ft_spaceskip(line, i);
 	if (s->win.x <= 1 || s->win.y <= 1 || line[*i] != '\0')
 		return (-4);
-	s->win.ANGLE_PER_PIXEL = FOV_H / (s->win.x-1);
-	s->win.FOV_V = (FOV_H*(double)s->win.y/(double)s->win.x);
+	s->win.fov_h = deg2rad(FOV);
+	s->win.a_p_pixel = s->win.fov_h / (s->win.x-1);
+	s->win.fov_v = (s->win.fov_h*(double)s->win.y/(double)s->win.x);
+	s->win.fovh_2 = s->win.fov_h / 2.0;
 	return (0);
 }
 

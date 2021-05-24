@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   bitmap.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: paul <marvin@42.fr>                        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/05/21 19:10:31 by paul              #+#    #+#             */
+/*   Updated: 2021/05/22 16:49:06 by paul             ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "cub3d.h"
 
 void	ft_bdata(t_all *s, int fd)
@@ -69,8 +81,25 @@ void	ft_bfile(t_all *s, int fd)
 
 void	ft_bdraw(t_all *s)
 {
+	int x;
+	int y;
+
 	s->img.ptr = mlx_new_image(s->mlx.ptr, s->win.x, s->win.y);
-	s->img.data = (int *)mlx_get_data_addr(s->img.ptr, &s->img.bpp, &s->img.size_l, &s->img.endian);
+	s->img.data = (int *)mlx_get_data_addr(s->img.ptr, &s->img.bpp,
+			&s->img.size_l, &s->img.endian);
+	y = -1;
+	while (++y < s->win.y / 2)
+	{
+		x = -1;
+		while (++x < s->win.x)
+			s->img.data[s->win.x * y + x] = s->tex.c;
+	}
+	while (++y < s->win.y)
+	{
+		x = -1;
+		while (++x < s->win.x)
+			s->img.data[s->win.x * y + x] = s->tex.f;
+	}
 	render(s);
 }
 

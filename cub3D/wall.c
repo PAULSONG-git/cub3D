@@ -3,7 +3,7 @@
 int
 get_wall_height(t_all *s, double dist )
 {
-    double fov_h = 2.0 * dist * tan(s->win.FOV_V/2.0);
+    double fov_h = 2.0 * dist * tan(s->win.fov_v/2.0);
     return (int)(s->win.y * (WALL_H / fov_h)); /* in pixels */
 }
 
@@ -44,7 +44,7 @@ while (++xx < s->win.y)
 
 double		cast_single_ray(t_all *s, int x, dir_t *wdir)
 {
-    double ray = (s->pos.th + FOVH_2) - (x * s->win.ANGLE_PER_PIXEL);
+    double ray = (s->pos.th + s->win.fovh_2) - (x * s->win.a_p_pixel);
 
     if( get_wall_intersection(s, ray, s->pos.x, s->pos.y, wdir, &s->tex.wx, &s->tex.wy) == false )
         return INFINITY; /* no intersection - maybe bad map? */

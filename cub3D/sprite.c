@@ -55,7 +55,7 @@ t_spr*  get_visible_sprites( t_all *s, int* pcnt )
 void draw_sprites( t_all *s )
 {
     int nsp = 0;
-	double PIXEL_PER_ANGLE = (s->win.x-1) / FOV_H;
+	double PIXEL_PER_ANGLE = (s->win.x-1) / s->win.fov_h;
     t_spr *sp = get_visible_sprites(s, &nsp);
 
     qsort(sp, nsp, sizeof(t_spr), cmp_sprites);  /* order by dist DESC */
@@ -68,7 +68,7 @@ void draw_sprites( t_all *s )
         if( angle > M_PI ) angle -= _2PI;   /* ensures -pi < angle < +pi */
         else if( angle < -M_PI ) angle += _2PI;
 
-        int cx = (int)((FOVH_2 - angle) * PIXEL_PER_ANGLE); /* screen pos of sprite, in pixels */
+        int cx = (int)((s->win.fovh_2 - angle) * PIXEL_PER_ANGLE); /* screen pos of sprite, in pixels */
         int xmin = max(0, cx - sh/2); /* clipping */
         int xmax = min(s->win.x, cx + sh/2);
 
