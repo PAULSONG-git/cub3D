@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parse.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: psong <psong@student.42seoul.kr>           +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/05/24 13:47:58 by psong             #+#    #+#             */
+/*   Updated: 2021/05/24 13:47:59 by psong            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "cub3d.h"
 
 int		ft_line(t_all *s, char *line)
@@ -47,8 +59,8 @@ int		ft_parse(t_all *s, char *cub)
 		free(line);
 	}
 	close(fd);
-	map_extend(s);
-	ft_pos(s);
+	map_extend(s, 0, 0);
+	ft_pos(s, -1, -1, 0);
 	if (ret == -1)
 		return (ft_strerror(ret + 1));
 	return (ft_parcheck(s));

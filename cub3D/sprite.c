@@ -1,93 +1,111 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   sprite.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: psong <psong@student.42seoul.kr>           +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/05/24 15:46:21 by psong             #+#    #+#             */
+/*   Updated: 2021/05/24 17:54:25 by psong            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "cub3d.h"
 
-int     sprite_init(t_all *s)
+int					cmp_sprites(const void *a, const void *b)
 {
-/*if (!(s->tex.visible = (int **)malloc(sizeof(int *) * s->map.x)))
-		return (-1);
-	for (int i = 0; i < s->map.x; i++)
+	return (((const t_spr*)a)->dist > ((const t_spr*)b)->dist) ? -1 : 1;
+}
+
+void				get_visible_sprites(t_all *s, int *pcnt, int x, int y)
+{
+	int				n;
+	t_spr			*sp;
+
+	sp = NULL;
+	s->spr = sp;
+	n = 0;
+	while (++x < s->map.x)
 	{
-		if (!(s->tex.visible[i] = (int *)malloc(sizeof(int) * s->map.y)))
-			return (-1);
+		while (++y < s->map.y)
+		{
+			if (map_get_cell(s, x, y) <= 1)
+				continue;
+			if (n == 0)
+				s->spr = (t_spr*)malloc(sizeof(t_spr));
+			else
+				s->spr = (t_spr*)realloc(s->spr, sizeof(t_spr) * (n + 1));
+			get_visible_sprites2(s, n, x, y);
+			n++;
+		}
+		y = -1;
 	}
-	for (int i = 0; i < s->map.x; i++)
+	*pcnt = n;
+}
+
+void				get_visible_sprites2(t_all *s, int n, int x, int y)
+{
+	s->spr[n].tex = map_get_cell(s, x, y) + 2;
+	s->spr[n].x = x;
+	s->spr[n].y = y;
+	s->spr[n].th = atan2((y + 0.5) - (s->pos.y), (x + 0.5) - (s->pos.x));
+	if (s->spr[n].th < 0)
+		s->spr[n].th += TWOPI;
+	s->spr[n].dist = l2dist(s->pos.x, s->pos.y, x + 0.5, y + 0.5)
+		* cos(s->pos.th - s->spr[n].th);
+}
+
+void				draw_sprites(t_all *s)
+{
+	int				nsp;
+	int				i;
+	int				cx;
+	int				sh;
+	double			angle;
+
+	nsp = 0;
+	i = -1;
+	get_visible_sprites(s, &nsp, -1, -1);
+	qsort(s->spr, nsp, sizeof(t_spr), cmp_sprites);
+	while (++i < nsp)
 	{
-		for (int j = 0; j < s->map.y; j++)
-			s->tex.visible[i][j] = 0;
+		sh = get_wall_height(s, s->spr[i].dist);
+		angle = s->spr[i].th - s->pos.th;
+		if (angle > M_PI)
+			angle -= TWOPI;
+		else if (angle < -M_PI)
+			angle += TWOPI;
+		cx = (int)((s->win.fovh_2 - angle) * s->win.p_p_angle);
+		draw_sprites2(s, cx, sh, i);
 	}
-*/
-	if (!(s->tex.zbuf = (double *)malloc(sizeof(double) * s->win.x)))
-		return (-1);
-    return (0);
+	if (nsp > 0)
+		free(s->spr);
 }
 
-int     cmp_sprites( const void* a, const void* b )
+void				draw_sprites2(t_all *s, int cx, int sh, int i)
 {
-    return (((const t_spr*)a)->dist > ((const t_spr*)b)->dist) ? -1 : 1;
-}
+	int				xmin;
+	int				y0;
+	int				y;
+	int				ty;
+	double			txratio;
 
-t_spr*  get_visible_sprites( t_all *s, int* pcnt )
-{
-    int n = 0;
-    t_spr *sp = NULL; /* dynamic array */
-
-    /* build list of visible sprites */
-    for( int x=0; x < s->map.x; x++ ) {
-        for( int y=0; y<s->map.y; y++ ) {
-            if( map_get_cell(s, x, y) <= 1 )
-                continue;
-
-            if( n == 0 ) sp = (t_spr*) malloc(sizeof(t_spr));
-            else sp = (t_spr*) realloc(sp, sizeof(t_spr)*(n+1));
-
-            sp[n].tex = map_get_cell(s, x, y) + 2;
-            sp[n].x = x;
-            sp[n].y = y;
-            sp[n].th = atan2((y+0.5)-(s->pos.y), (x+0.5)-(s->pos.x));
-            if( sp[n].th < 0 ) sp[n].th += _2PI;
-            sp[n].dist = l2dist(s->pos.x, s->pos.y, x+0.5, y+0.5) * cos(s->pos.th - sp[n].th);
-            n++;
-        }
-    }
-    *pcnt = n;
-    return sp;
-}
-
-void draw_sprites( t_all *s )
-{
-    int nsp = 0;
-	double PIXEL_PER_ANGLE = (s->win.x-1) / s->win.fov_h;
-    t_spr *sp = get_visible_sprites(s, &nsp);
-
-    qsort(sp, nsp, sizeof(t_spr), cmp_sprites);  /* order by dist DESC */
-
-    for( int i=0; i<nsp; i++ ) {
-        int sh = get_wall_height(s, sp[i].dist); /* sprite height (=width) */
-        //int color = (sp[i].tex);
-
-        double angle = sp[i].th - s->pos.th; /* angle of sprite relative to FOV center */
-        if( angle > M_PI ) angle -= _2PI;   /* ensures -pi < angle < +pi */
-        else if( angle < -M_PI ) angle += _2PI;
-
-        int cx = (int)((s->win.fovh_2 - angle) * PIXEL_PER_ANGLE); /* screen pos of sprite, in pixels */
-        int xmin = max(0, cx - sh/2); /* clipping */
-        int xmax = min(s->win.x, cx + sh/2);
-
-        for( int x=xmin; x<xmax; x++ ) {
-            if( sp[i].dist > s->tex.zbuf[x] ) continue; /* behind wall */
-			if( sp[i].dist < 0.3 ) continue; /* too close */
-			int color2;
-
-            double txratio = (double)(x-cx)/sh + 0.5;
-            int tx = (int)(txratio * 64); /* texture col # */
-            int y0 = (int)((s->win.y - sh)/2.0);
-
-            for( int y=max(0, y0); y<min(s->win.y, y0+sh); y++ ) {
-                int ty = (int)((double)(y-y0) * 64/ sh); /* texture row # */
-				color2 = s->tex.i[64 * ty + tx];
-                if( (color2 & 0x00ffffff) == 0 ) continue; /* black == transparent */
-				s->img.data[y * s->win.x + x] = s->tex.i[64 * (ty) + (tx)];
-            }
-        }
-    }
-    if( nsp > 0 ) free(sp);
+	xmin = max(0, cx - sh / 2) - 1;
+	while (++xmin < min(s->win.x, cx + sh / 2))
+	{
+		if (s->spr[i].dist > s->tex.zbuf[xmin])
+			continue;
+		if (s->spr[i].dist < 0.3)
+			continue;
+		txratio = (double)(xmin - cx) / sh + 0.5;
+		y0 = (int)((s->win.y - sh) / 2.0);
+		y = max(0, y0) - 1;
+		while (++y < min(s->win.y, y0 + sh))
+		{
+			ty = (int)((double)(y - y0) * 64 / sh);
+			if ((s->tex.i[64 * ty + (int)(txratio * 64)] & 0x00ffffff) != 0)
+				s->img.data[y * s->win.x + xmin] =
+					s->tex.i[64 * (ty) + ((int)(txratio * 64))];
+		}
+	}
 }

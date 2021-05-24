@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parse_tools.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: psong <psong@student.42seoul.kr>           +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/05/24 14:01:42 by psong             #+#    #+#             */
+/*   Updated: 2021/05/24 21:00:30 by psong            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "cub3d.h"
 
 int		ft_res(t_all *s, char *line, int *i)
@@ -15,9 +27,10 @@ int		ft_res(t_all *s, char *line, int *i)
 	if (s->win.x <= 1 || s->win.y <= 1 || line[*i] != '\0')
 		return (-4);
 	s->win.fov_h = deg2rad(FOV);
-	s->win.a_p_pixel = s->win.fov_h / (s->win.x-1);
-	s->win.fov_v = (s->win.fov_h*(double)s->win.y/(double)s->win.x);
+	s->win.a_p_pixel = s->win.fov_h / (s->win.x - 1);
+	s->win.fov_v = (s->win.fov_h * (double)s->win.y / (double)s->win.x);
 	s->win.fovh_2 = s->win.fov_h / 2.0;
+	s->win.p_p_angle = (s->win.x - 1) / s->win.fov_h;
 	return (0);
 }
 
@@ -33,28 +46,24 @@ int		ft_colors(unsigned int *color, char *line, int *i)
 	r = ft_atoi(line, i);
 	if (line[*i] != ',')
 		return (-6);
-		(*i)++;
+	(*i)++;
 	g = ft_atoi(line, i);
 	if (line[*i] != ',')
 		return (-6);
-			(*i)++;
+	(*i)++;
 	b = ft_atoi(line, i);
 	ft_spaceskip(line, i);
-	if (!(line[*i] == '\0' && (0 <= r && r <= 255) && (0 <= g && g <= 255) && (0 <= b && b <= 255)))
+	if (!(line[*i] == '\0' && (0 <= r && r <= 255)
+				&& (0 <= g && g <= 255) && (0 <= b && b <= 255)))
 		return (-6);
 	*color = r * 256 * 256 + g * 256 + b;
 	return (0);
 }
 
-void	ft_pos(t_all *s)
+void	ft_pos(t_all *s, int i, int j, double th)
 {
 	char	c;
-	int		i;
-	int		j;
-	double  th;
 
-	i = -1;
-	j = -1;
 	while (++i < s->map.x)
 	{
 		while (++j < s->map.y)
@@ -80,13 +89,11 @@ void	ft_pos(t_all *s)
 	}
 }
 
-void	map_extend(t_all *s)
+void	map_extend(t_all *s, int a, int b)
 {
-	int a = 0;
-	int b = 0;
 	char **tmp;
 	char **tmp2;
-	
+
 	tmp = malloc(sizeof(char *) * (s->map.x + 1));
 	while (a < s->map.x)
 	{

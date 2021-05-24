@@ -1,6 +1,25 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   tools.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: psong <psong@student.42seoul.kr>           +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/05/24 16:29:56 by psong             #+#    #+#             */
+/*   Updated: 2021/05/24 16:30:48 by psong            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "cub3d.h"
 
-int		ft_spaceskip(char *line, int *i)
+int					sprite_init(t_all *s)
+{
+	if (!(s->tex.zbuf = (double *)malloc(sizeof(double) * s->win.x)))
+		return (-1);
+	return (0);
+}
+
+int					ft_spaceskip(char *line, int *i)
 {
 	while ((line[*i] == ' ' || line[*i] == '\t' || line[*i] == '\n')
 	|| (line[*i] == '\r' || line[*i] == '\v' || line[*i] == '\f'))
@@ -8,10 +27,10 @@ int		ft_spaceskip(char *line, int *i)
 	return (1);
 }
 
-int		ft_atoi(char *line, int *i)
+int					ft_atoi(char *line, int *i)
 {
-	int	num;
-	int flag;
+	int				num;
+	int				flag;
 
 	num = 0;
 	flag = 0;
@@ -27,10 +46,9 @@ int		ft_atoi(char *line, int *i)
 	return (num);
 }
 
-int		ft_strerror(int err)
+int					ft_strerror(int err)
 {
 	(err == -1) ? write(2, "Error : Couldn't open file (FD)\n", 32) : 0;
-	
 	(err == -3) ? write(2, "Error : Resolution specified twice\n", 35) : 0;
 	(err == -4) ? write(2, "Error : Invalid resolution\n", 27) : 0;
 	(err == -5) ? write(2, "Error : Floor/ceiling specified twice\n", 38) : 0;

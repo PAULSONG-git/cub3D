@@ -6,7 +6,7 @@
 /*   By: paul <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/21 21:21:47 by paul              #+#    #+#             */
-/*   Updated: 2021/05/22 17:21:26 by paul             ###   ########.fr       */
+/*   Updated: 2021/05/24 21:09:26 by psong            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,25 +32,34 @@
 # define NONE 0xFF000000
 # define FOV 60
 # define WALL_H 1.0
-# define _2PI 6.28318530717958647692
-# define ROT_UNIT 0.05
-# define MOVE_UNIT 0.2
+# define TWOPI 6.28318530717958647692
+# define ROTUNIT 0.03
+# define MOVEUNIT 0.2
 
 # define X_EVENT_KEY_PRESS 2
 # define X_EVENT_KEY_RELEASE 3
 # define X_EVENT_KEY_EXIT 17
-# define KEY_ESC 53
-# define KEY_Q	12
-# define KEY_W	13
-# define KEY_E	14
-# define KEY_R	15
-# define KEY_A	0
-# define KEY_S	1
-# define KEY_D	2
-# define KEY_LEFT 123
-# define KEY_RIGHT 124
-# define TEX_WIDTH 64
-# define TEX_HEIGHT 64
+# define ESC 53
+# define Q	12
+# define W	13
+# define E	14
+# define R	15
+# define A	0
+# define S	1
+# define D	2
+# define LEFT 123
+# define RIGHT 124
+# define TEXWIDTH 64
+# define TEXHEIGHT 64
+
+# define FALSE 0
+# define TRUE 1
+# define VERT 0
+# define HORIZ 1
+# define DIR_N 0
+# define DIR_E 1
+# define DIR_W 2
+# define DIR_S 3
 
 typedef struct	s_mlx
 {
@@ -63,6 +72,7 @@ typedef struct	s_win
 	int				x;
 	int				y;
 	double			a_p_pixel;
+	double			p_p_angle;
 	double			fov_h;
 	double			fov_v;
 	double			fovh_2;
@@ -118,14 +128,33 @@ typedef struct	s_pos
 	double			th;
 }				t_pos;
 
-typedef struct 	s_spr
+typedef struct	s_spr
 {
-    int				tex;
-    int				x;
+	int				tex;
+	int				x;
 	int				y;
-    double			dist;
-    double			th;
+	double			dist;
+	double			th;
+	int				tx;
+	int				ty;
+	int				sh;
 }				t_spr;
+
+typedef struct	s_w
+{
+	int				xstep;
+	int				ystep;
+	double			xslope;
+	double			yslope;
+	double			nx;
+	double			ny;
+	double			f;
+	double			g;
+	int				hit;
+	int				hit_side;
+	int				mapx;
+	int				mapy;
+}				t_w;
 
 typedef struct	s_all
 {
@@ -137,19 +166,8 @@ typedef struct	s_all
 	t_tex			tex;
 	t_spr			*spr;
 	t_pos			pos;
+	t_w				w;
 }				t_all;
-
-typedef struct 	s_bool
-{
-	int				false;
-	int				true;
-	int				vert;
-	int				horiz;
-	int				dir_n;
-	int				dir_e;
-	int				dir_w;
-	int				dir_s;
-}				t_bool;
 
 void			ft_init(char *cub, int bmp);
 void			ft_declare(t_all s, char *cub, int bmp);
@@ -165,11 +183,12 @@ int				ft_slablen(t_all *s, char *line);
 int				ft_texture(t_all *s, unsigned int **adr, char *line, int *i);
 int				ft_xpm(t_all *s, unsigned int **adr, char *file);
 int				ft_slist(t_all *s);
-void			ft_pos(t_all *s);
+void			ft_pos(t_all *s, int i, int j, double th);
 int				ft_colors(unsigned int *color, char *line, int *i);
 int				ft_res(t_all *s, char *line, int *i);
 int				ft_parcheck(t_all *s);
-int				ft_mapcheck(t_all *s);
+int				ft_mapcheck1(t_all *s, int a, int b, int c);
+int				ft_mapcheck2(t_all *s, int a, int b, int c);
 int				ft_key(int key, void *arg);
 void			ft_rotate(t_all *s, double c);
 void			ft_strafe(t_all *s, double c);
@@ -196,25 +215,31 @@ char			*ft_strjoin(char *s1, char *s2);
 int				map_get_cell(t_all *s, int x, int y);
 int				sgn(double d);
 double			l2dist(double x0, double y0, double x1, double y1);
-double			cast_single_ray(t_all *s, int x, dir_t *wdir);
-bool			get_wall_intersection(t_all *s, double ray,
-		double px, double py, dir_t *wdir, double *wx, double *wy);
+double			cast_single_ray(t_all *s, int x, int *wdir);
+int				get_wall_intersection(t_all *s, double ray, int *wdir);
+int				get_wall_intersection2(t_all *s, double ray, int *wdir);
+void			get_wall_intersection3(t_all *s, int *wdir, int cell);
+int				get_wall_intersection4(t_all *s, int cell,
+		double dist_v, double dist_h);
 int				get_wall_height(t_all *s, double dist);
 void			draw_wall(t_all *s, double wdist, int x, int color);
 void			render(t_all *s);
 int				key_press(int key, t_all *s);
 int				key_release(int key, t_all *s);
 void			player_rotate(t_all *s, double th);
-int				get_move_offset(double th, int key, double amt,
+int				get_move_offset(double th, int key,
 			double *pdx, double *pdy);
-int				player_move(t_all *s, int key, double amt);
-t_spr			*get_visible_sprites(t_all *s, int *pcnt);
+int				player_move(t_all *s, int key);
+void			get_visible_sprites(t_all *s, int *pcnt, int x, int y);
+void			get_visible_sprites2(t_all *s, int n, int x, int y);
 int				cmp_sprites(const void *a, const void *b);
 void			draw_sprites(t_all *s);
-void			map_extend(t_all *s);
+void			draw_sprites2(t_all *s, int cx, int sh, int i);
+void			map_extend(t_all *s, int a, int b);
 int				sprite_init(t_all *s);
 double			deg2rad(double d);
 double			rad2deg(double d);
 double			min(double a, double b);
 double			max(double a, double b);
+void			wall_init(t_all *s);
 #endif

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parse_map.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: psong <psong@student.42seoul.kr>           +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/05/24 13:59:06 by psong             #+#    #+#             */
+/*   Updated: 2021/05/24 14:01:01 by psong            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "cub3d.h"
 
 int		ft_xpm(t_all *s, unsigned int **adr, char *file)
@@ -79,12 +91,9 @@ char	*ft_slab(t_all *s, char *line, int *i)
 	while (line[*i] != '\0')
 	{
 		if ((line[*i] == '0' || line[*i] == '1' || line[*i] == 'N')
-			|| (line[*i] == 'E' || line[*i] == 'S' || line[*i] == 'W') || line[*i] == ' ')
+			|| (line[*i] == 'E' || line[*i] == 'S' || line[*i] == 'W')
+			|| (line[*i] == '2' || line[*i] == ' '))
 			slab[j++] = line[*i];
-		else if (line[*i] == '2')
-		{
-			slab[j++] = line[*i];
-		}
 		else if (line[*i] != ' ')
 		{
 			free(slab);
@@ -100,6 +109,7 @@ int		ft_map(t_all *s, char *line, int *i)
 {
 	char	**tmp;
 	int		j;
+
 	s->err.m = 1;
 	if (!(tmp = malloc(sizeof(char *) * (s->map.x + 2))))
 		return (-11);
