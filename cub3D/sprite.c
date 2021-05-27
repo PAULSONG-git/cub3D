@@ -6,7 +6,7 @@
 /*   By: psong <psong@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/24 15:46:21 by psong             #+#    #+#             */
-/*   Updated: 2021/05/24 17:54:25 by psong            ###   ########.fr       */
+/*   Updated: 2021/05/27 11:53:04 by paul             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@ void				draw_sprites2(t_all *s, int cx, int sh, int i)
 			ty = (int)((double)(y - y0) * 64 / sh);
 			if ((s->tex.i[64 * ty + (int)(txratio * 64)] & 0x00ffffff) != 0)
 				s->img.data[y * s->win.x + xmin] =
-					s->tex.i[64 * (ty) + ((int)(txratio * 64))];
+					fade_color(s, s->tex.i[64 * (ty) + ((int)(txratio * 64))], s->spr[i].dist);
 		}
 	}
 }

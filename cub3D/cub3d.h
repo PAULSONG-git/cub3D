@@ -6,7 +6,7 @@
 /*   By: paul <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/21 21:21:47 by paul              #+#    #+#             */
-/*   Updated: 2021/05/24 21:09:26 by psong            ###   ########.fr       */
+/*   Updated: 2021/05/27 11:16:16 by paul             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -242,4 +242,8 @@ double			rad2deg(double d);
 double			min(double a, double b);
 double			max(double a, double b);
 void			wall_init(t_all *s);
+double			get_luminosity(t_all *s, double dist);
+int				fade_color(t_all *s, int color, double dist);
+void			decode_color(int color, int *r, int *g, int *b);
+int				encode_color(int r, int g, int b);
 #endif

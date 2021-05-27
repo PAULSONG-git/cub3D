@@ -6,7 +6,7 @@
 /*   By: psong <psong@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/24 16:29:56 by psong             #+#    #+#             */
-/*   Updated: 2021/05/24 16:30:48 by psong            ###   ########.fr       */
+/*   Updated: 2021/05/27 11:47:42 by paul             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,4 +67,38 @@ int					ft_strerror(int err)
 	(err == -18) ? write(2, "Error : Multiple starting positions\n", 36) : 0;
 	(err == -19) ? write(2, "Error : Map isn't surrounded by walls\n", 38) : 0;
 	return (-1);
+}
+
+double
+get_luminosity(t_all *s, double dist)
+{
+    double Dist = -1;
+    if( Dist < 0 )
+		Dist = (s->map.x + s->map.y) / 2.0;
+    return ((dist > Dist) ? 0 : (1. - dist/Dist));
+}
+
+int				fade_color(t_all *s, int color, double dist)
+{
+	double lum = get_luminosity(s, dist);
+    if( lum < 0 ) lum = 0;
+    else if( lum > 1 ) lum = 1;
+    int r, g, b = 0x00000000;
+    decode_color(color, &r, &g, &b);
+    return encode_color((int)(r*lum), (int)(g*lum), (int)(b*lum));
+}
+
+void			decode_color(int color, int *r, int *g, int *b)
+{
+	*r = color / 256 / 256; // red 추출
+	*g = color / 256 % 256; // green 추출
+	*b = (color % 256); // blue 추출
+}
+
+int				encode_color(int r, int g, int b)
+{
+	int color;
+
+	color = r * 256 *256 + g * 256 + b;
+	return(color);
 }

@@ -6,7 +6,7 @@
 /*   By: psong <psong@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/24 16:47:25 by psong             #+#    #+#             */
-/*   Updated: 2021/05/24 20:38:40 by psong            ###   ########.fr       */
+/*   Updated: 2021/05/27 11:49:52 by paul             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,17 +27,17 @@ void				draw_wall(t_all *s, double wdist, int x, int color)
 	{
 		s->tex.ty = (int)((double)(c - y0) * 64 / wh);
 		if (color == 0)
-			s->img.data[c * s->win.x + x] = s->tex.n[64 * s->tex.ty
-				+ s->tex.tx];
+			s->img.data[c * s->win.x + x] = fade_color(s, s->tex.n[64 * s->tex.ty
+				+ s->tex.tx], wdist);
 		if (color == 1)
-			s->img.data[c * s->win.x + x] = s->tex.e[64 * s->tex.ty
-				+ s->tex.tx];
+			s->img.data[c * s->win.x + x] = fade_color(s, s->tex.e[64 * s->tex.ty
+				+ s->tex.tx], wdist);
 		if (color == 2)
-			s->img.data[c * s->win.x + x] = s->tex.w[64 * s->tex.ty
-				+ s->tex.tx];
+			s->img.data[c * s->win.x + x] = fade_color(s, s->tex.w[64 * s->tex.ty
+				+ s->tex.tx], wdist);
 		if (color == 3)
-			s->img.data[c * s->win.x + x] = s->tex.s[64 * s->tex.ty
-				+ s->tex.tx];
+			s->img.data[c * s->win.x + x] = fade_color(s, s->tex.s[64 * s->tex.ty
+				+ s->tex.tx], wdist);
 	}
 }
 

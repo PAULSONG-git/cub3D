@@ -6,7 +6,7 @@
 /*   By: psong <psong@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/24 12:09:10 by psong             #+#    #+#             */
-/*   Updated: 2021/05/24 12:09:11 by psong            ###   ########.fr       */
+/*   Updated: 2021/05/27 10:54:36 by paul             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ int		ft_cubed(t_all s, char *cub, int bmp)
 	s.win.ptr = mlx_new_window(s.mlx.ptr, s.win.x, s.win.y, "ex02");
 	ft_draw(&s);
 	mlx_hook(s.win.ptr, X_EVENT_KEY_PRESS, 0, &key_press, &s);
+	mlx_hook(s.win.ptr, 17, 0, &ft_close, &s);
 	mlx_loop(s.mlx.ptr);
 	return (1);
 }
